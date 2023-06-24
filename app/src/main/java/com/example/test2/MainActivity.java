@@ -29,11 +29,13 @@ import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.canvas.draw.DashedLine;
 import com.itextpdf.kernel.pdf.canvas.draw.DottedLine;
 import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
+import com.itextpdf.kernel.pdf.extgstate.PdfExtGState;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.VerticalAlignment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             writer = new PdfWriter(new FileOutputStream(path));
         }catch (FileNotFoundException e){
-            e.toString();
+            StringUtils.HaoLog("ggg= "+e);
         }
         PdfDocument pdf_document = new PdfDocument(writer);
         //生成PDF文檔訊息
@@ -161,8 +163,33 @@ public class MainActivity extends AppCompatActivity {
             pageSize = page.getPageSize();
             canvas = new PdfCanvas(page);
             //頁眉
+            canvas.beginText().setFontAndSize(font,7)
+                    .moveText(pageSize.getWidth()/2-18,pageSize.getHeight()-10)
+                    .showText("我是頁眉")
+                    .endText();
 
+            //頁腳
+            canvas.setStrokeColor(text_title_color)
+                    .setLineWidth(.2f)
+                    .moveTo(pageSize.getWidth()/2-30,20)
+                    .lineTo(pageSize.getWidth()/2-30,20).stroke();
+            canvas.beginText().setFontAndSize(font,7)
+                    .moveText(pageSize.getWidth()/2-6,10)
+                    .showText(String.valueOf(i))
+                    .endText();
+            //水印
+            Paragraph paragraph = new Paragraph("Quinto").setFontSize(60);
+            canvas.saveState();
+            PdfExtGState gs1 = new PdfExtGState().setFillOpacity(0.2f);
+            canvas.setExtGState(gs1);
+            document.showTextAligned(paragraph,pageSize.getWidth()/2,pageSize.getHeight()/2
+            ,pdf_document.getPageNumber(page),TextAlignment.CENTER, VerticalAlignment.MIDDLE,45);
+            canvas.restoreState();
         }
+
+        document.close();
+        StringUtils.HaoLog("PDF文件已生成");
+
     }
 
 }
